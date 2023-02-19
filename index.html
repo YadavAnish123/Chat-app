@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chatApp</title>
+
+  <!-- <script defer src="/client.js"></script> -->
+  <!-- <link rel="stylesheet" type='text/css' href="/static/style.css"> -->
+    
+  <style>
+    body {
+      height: 100vh;
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(109, 39, 239));
+    }
+
+    .logo {
+      display: block;
+      margin: auto;
+      width: 50px;
+      height: 50px;
+      padding-bottom: 15px;
+    }
+
+    h1 {
+      display: flex;
+      justify-content: center;
+
+    }
+
+    .container {
+      margin-top: 2px;
+      ;
+      height: 60vh;
+      max-width: 800px;
+      /* background-color: red; */
+      margin: auto;
+      overflow-y: auto;
+      border: 2px solid black;
+
+    }
+
+    .message {
+      background-color: gray;
+      border: 2px solid black;
+      width: 24%;
+      padding: 10px;
+      margin: 17px 12px;
+      border-radius: 10px;
+
+    }
+
+    .left {
+      float: left;
+      clear: both;
+    }
+
+    .right {
+      float: right;
+      clear: both;
+    }
+
+    #send-container {
+      display: block;
+      margin: auto;
+      text-align: center;
+      max-width: 985px;
+      width: 100%;
+    }
+
+    #messageInp {
+      margin: 17px 8px;
+      width: 60%;
+      border: 2px solid black;
+      border-radius: 6px;
+      height: 30px;
+    }
+
+    #btn {
+      cursor: pointer;
+      border: 2px solid black;
+      border-radius: 6px;
+      height: 34px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>
+    Wellcome to Secret chat
+  </h1>
+  <nav>
+    <img class="logo" src="https://cryptologos.cc/logos/chatcoin-chat-logo.png" alt="">
+  </nav>
+  <div class="container">
+    <!-- <div class="message left">
+           
+        </div> -->
+    <!-- <div class="message right">
+            
+        </div> -->
+  </div>
+
+  <div class="send">
+    <form action="#" id="send-container">
+      <input type="text" name="messageInp" id="messageInp">
+      <button type="submit" id="btn">Send</button>
+    </form>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const  socket = io();
+    const form = document.getElementById('send-container');
+    const messageInput = document.getElementById("messageInp");
+    const messageContainer = document.querySelector(".container");
+    // const audio =new Audio('Facebook%20Sound.mp3')
+    const append = (message, position) => {
+      const messageElement = document.createElement('div');
+      messageElement.innerText = message;
+      messageElement.classList.add('message')
+      messageElement.classList.add(position)
+      messageContainer.append(messageElement)   
+    }
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = messageInput.value;
+      append(`you:${message}`, 'right');
+      socket.emit('send', message)
+      messageInput.value = ''
+
+
+    })
+    const name = prompt("enter the name");
+    socket.emit('new-user-joined', name)
+
+    socket.on('user-joined', name => {
+      append(`${name} joined the chat`, 'right')
+    })
+    socket.on('receive', data => {
+      append(`${data.name}:${data.message}`, 'left')
+    })
+
+    socket.on('left', name => {
+      append(`${name} left the chat`, 'left')
+    })
+
+
+  </script>
+</body>
+
+</html>
